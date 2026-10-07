@@ -1,6 +1,13 @@
+import { useFavorites } from "@/context/FavoritesContext";
 import Pokemon from "@/interface/Pokemon";
 import { Image } from "expo-image";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 
 interface ShowPokemonProps {
     pokemon: Pokemon;
@@ -27,7 +34,19 @@ export const typeIcons: Record<string, any> = {
     fairy: require("@/assets/icons/fairy.svg"),
 };
 
-export default function ShowPokemon({ pokemon }: ShowPokemonProps) {
+export default function ShowPokemon({
+    pokemon,
+}: ShowPokemonProps) {
+    const {
+        isFavorite,
+        toggleFavorite,
+    } = useFavorites();
+
+    const favorite =
+        pokemon.pokemon_id
+            ? isFavorite(pokemon.pokemon_id)
+            : false;
+
     const Type1Icon = pokemon.types
         ? typeIcons[pokemon.types.type1]?.default ||
           typeIcons[pokemon.types.type1]
@@ -44,8 +63,16 @@ export default function ShowPokemon({ pokemon }: ShowPokemonProps) {
         )?.base_stat;
     };
 
+    const handleFavorite = async () => {
+        await toggleFavorite(pokemon);
+    };
+
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+            contentContainerStyle={
+                styles.container
+            }
+        >
             <Text style={styles.name}>
                 {pokemon.pokemon_name
                     .split("-")
@@ -62,10 +89,33 @@ export default function ShowPokemon({ pokemon }: ShowPokemonProps) {
             </Text>
 
             <Image
-                source={{ uri: pokemon.pokemon_image }}
+                source={{
+                    uri: pokemon.pokemon_image,
+                }}
                 style={styles.image}
                 contentFit="contain"
             />
+
+            <Pressable
+                style={[
+                    styles.favoriteButton,
+                    favorite &&
+                        styles.favoriteButtonActive,
+                ]}
+                onPress={handleFavorite}
+            >
+                <Text
+                    style={[
+                        styles.favoriteButtonText,
+                        favorite &&
+                            styles.favoriteButtonTextActive,
+                    ]}
+                >
+                    {favorite
+                        ? "★ Remover dos Favoritos"
+                        : "☆ Adicionar aos Favoritos"}
+                </Text>
+            </Pressable>
 
             <View style={styles.types}>
                 {Type1Icon && (
@@ -115,11 +165,13 @@ export default function ShowPokemon({ pokemon }: ShowPokemonProps) {
                 </Text>
 
                 <Text style={styles.infoText}>
-                    Ataque Especial: {getStat("special-attack")}
+                    Ataque Especial:{" "}
+                    {getStat("special-attack")}
                 </Text>
 
                 <Text style={styles.infoText}>
-                    Defesa Especial: {getStat("special-defense")}
+                    Defesa Especial:{" "}
+                    {getStat("special-defense")}
                 </Text>
 
                 <Text style={styles.infoText}>
@@ -132,14 +184,16 @@ export default function ShowPokemon({ pokemon }: ShowPokemonProps) {
                     Habilidades
                 </Text>
 
-                {pokemon.abilities?.map((ability, index) => (
-                    <Text
-                        key={index}
-                        style={styles.infoText}
-                    >
-                        • {ability.ability.name}
-                    </Text>
-                ))}
+                {pokemon.abilities?.map(
+                    (ability, index) => (
+                        <Text
+                            key={index}
+                            style={styles.infoText}
+                        >
+                            • {ability.ability.name}
+                        </Text>
+                    )
+                )}
             </View>
         </ScrollView>
     );
@@ -169,6 +223,32 @@ const styles = StyleSheet.create({
     image: {
         width: 250,
         height: 250,
+    },
+
+    favoriteButton: {
+        width: "100%",
+        backgroundColor: "#FFF5F5",
+        borderWidth: 2,
+        borderColor: "#FF3E3E",
+        borderRadius: 12,
+        paddingVertical: 13,
+        paddingHorizontal: 20,
+        alignItems: "center",
+        marginBottom: 20,
+    },
+
+    favoriteButtonActive: {
+        backgroundColor: "#FF3E3E",
+    },
+
+    favoriteButtonText: {
+        color: "#FF3E3E",
+        fontSize: 16,
+        fontWeight: "700",
+    },
+
+    favoriteButtonTextActive: {
+        color: "#FFFFFF",
     },
 
     types: {
