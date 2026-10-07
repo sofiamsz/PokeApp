@@ -10,7 +10,7 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    View
+    View,
 } from "react-native";
 
 export default function ListPokemon() {
@@ -22,7 +22,10 @@ export default function ListPokemon() {
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    const handleFetchPokemon = async (currentOffset: number, append = false) => {
+    const handleFetchPokemon = async (
+        currentOffset: number,
+        append = false
+    ) => {
         try {
             if (append) {
                 setIsMoreLoading(true);
@@ -30,7 +33,11 @@ export default function ListPokemon() {
                 setIsLoading(true);
             }
 
-            const data = await Requests.fetchPokemonList(currentOffset, 20);
+            const data = await Requests.fetchPokemonList(
+                currentOffset,
+                20
+            );
+
             if (data) {
                 if (data.length < 20) {
                     setHasMore(false);
@@ -39,7 +46,9 @@ export default function ListPokemon() {
                 if (append) {
                     setPokemons((prev) => {
                         const newPokemons = [...prev, ...data];
+
                         setFilteredPokemons(newPokemons);
+
                         return newPokemons;
                     });
                 } else {
@@ -48,7 +57,10 @@ export default function ListPokemon() {
                 }
             }
         } catch (error) {
-            console.error("Failed to fetch pokemons:", error);
+            console.error(
+                "Failed to fetch pokemons:",
+                error
+            );
         } finally {
             setIsLoading(false);
             setIsMoreLoading(false);
@@ -60,21 +72,34 @@ export default function ListPokemon() {
     }, []);
 
     const handleLoadMore = () => {
-        if (isLoading || isMoreLoading || !hasMore || searchQuery.trim() !== "") {
+        if (
+            isLoading ||
+            isMoreLoading ||
+            !hasMore ||
+            searchQuery.trim() !== ""
+        ) {
             return;
         }
-        handleFetchPokemon(pokemons.length, true);
+
+        handleFetchPokemon(
+            pokemons.length,
+            true
+        );
     };
 
     const handleTextChange = (text: string) => {
         setSearchQuery(text);
+
         if (!text.trim()) {
             setFilteredPokemons(pokemons);
         }
     };
 
     const handleSearchSubmit = async () => {
-        const query = searchQuery.trim().toLowerCase();
+        const query = searchQuery
+            .trim()
+            .toLowerCase();
+
         if (!query) {
             setFilteredPokemons(pokemons);
             return;
@@ -82,19 +107,40 @@ export default function ListPokemon() {
 
         try {
             setIsLoadingSearch(true);
-            const data = await Requests.fetchPokemonData(query);
-            if (data && data.pokemon_info && data.pokemon_info.name) {
+
+            const data =
+                await Requests.fetchPokemonData(
+                    query
+                );
+
+            if (
+                data &&
+                data.pokemon_info &&
+                data.pokemon_info.name
+            ) {
                 const singlePokemon: Pokemon = {
-                    pokemon_name: data.pokemon_info.name,
-                    pokemon_id: data.pokemon_id,
-                    pokemon_image: data.pokemon_image,
+                    pokemon_name:
+                        data.pokemon_info.name,
+
+                    pokemon_id:
+                        data.pokemon_id,
+
+                    pokemon_image:
+                        data.pokemon_image,
                 };
-                setFilteredPokemons([singlePokemon]);
+
+                setFilteredPokemons([
+                    singlePokemon,
+                ]);
             } else {
                 setFilteredPokemons([]);
             }
         } catch (error) {
-            console.error("Error searching pokemon:", error);
+            console.error(
+                "Error searching pokemon:",
+                error
+            );
+
             setFilteredPokemons([]);
         } finally {
             setIsLoadingSearch(false);
@@ -104,45 +150,70 @@ export default function ListPokemon() {
     const formatName = (name: string) => {
         return name
             .split("-")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .map(
+                (word) =>
+                    word.charAt(0).toUpperCase() +
+                    word.slice(1)
+            )
             .join(" ");
     };
 
     const formatId = (id?: number) => {
         if (!id) return "";
+
         return `#${String(id).padStart(3, "0")}`;
     };
 
     const renderFooter = () => {
-        if (!isMoreLoading) return null;
+        if (!isMoreLoading) {
+            return null;
+        }
+
         return (
             <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#FF3E3E" />
+                <ActivityIndicator
+                    size="small"
+                    color="#FF3E3E"
+                />
             </View>
         );
     };
 
-    if (isLoading && pokemons.length === 0) {
+    if (
+        isLoading &&
+        pokemons.length === 0
+    ) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#FF3E3E" />
-                <Text style={styles.loadingText}>Carregando Pokémons...</Text>
+                <ActivityIndicator
+                    size="large"
+                    color="#FF3E3E"
+                />
+
+                <Text style={styles.loadingText}>
+                    Carregando Pokémons...
+                </Text>
             </View>
         );
     }
 
     return (
         <View style={styles.container}>
-            {/* Cabecalho e Pesquisa */}
+            {/* Cabeçalho e Pesquisa */}
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Pokédex</Text>
+                <Text style={styles.headerTitle}>
+                    Pokédex
+                </Text>
+
                 <TextInput
                     placeholder="Pesquisar por nome ou ID..."
                     placeholderTextColor="#A0AEC0"
                     style={styles.searchBar}
                     value={searchQuery}
                     onChangeText={handleTextChange}
-                    onSubmitEditing={handleSearchSubmit}
+                    onSubmitEditing={
+                        handleSearchSubmit
+                    }
                     returnKeyType="search"
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -152,53 +223,121 @@ export default function ListPokemon() {
 
             {isLoadingSearch ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color="#FF3E3E" />
-                    <Text style={styles.loadingText}>Buscando Pokémon...</Text>
+                    <ActivityIndicator
+                        size="large"
+                        color="#FF3E3E"
+                    />
+
+                    <Text
+                        style={styles.loadingText}
+                    >
+                        Buscando Pokémon...
+                    </Text>
                 </View>
             ) : filteredPokemons.length === 0 ? (
                 <View style={styles.center}>
-                    <Text style={styles.noResultsText}>Nenhum Pokémon encontrado</Text>
+                    <Text
+                        style={
+                            styles.noResultsText
+                        }
+                    >
+                        Nenhum Pokémon encontrado
+                    </Text>
                 </View>
             ) : (
                 <FlatList
                     data={filteredPokemons}
-                    keyExtractor={(item) => item.pokemon_name}
+                    keyExtractor={(item) =>
+                        item.pokemon_name
+                    }
                     numColumns={2}
-                    showsVerticalScrollIndicator={false}
-                    columnWrapperStyle={styles.row}
-                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={
+                        false
+                    }
+                    columnWrapperStyle={
+                        styles.row
+                    }
+                    contentContainerStyle={
+                        styles.listContent
+                    }
                     renderItem={({ item }) => (
-                        <Pressable style={styles.card} /*onPress={() => item.pokemon_id && router.push(`/pokemon/${item.pokemon_id}` as any)*/}>
+                        <Pressable
+                            style={styles.card}
+                            onPress={() =>
+                                item.pokemon_id &&
+                                router.push(
+                                    `/pokemon/${item.pokemon_id}` as any
+                                )
+                            }
+                        >
                             {/* ID Badge */}
-                            <View style={styles.idBadge}>
-                                <Text style={styles.idText}>{formatId(item.pokemon_id)}</Text>
+                            <View
+                                style={
+                                    styles.idBadge
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.idText
+                                    }
+                                >
+                                    {formatId(
+                                        item.pokemon_id
+                                    )}
+                                </Text>
                             </View>
 
                             {/* Sprite */}
-                            <View style={styles.imageContainer}>
+                            <View
+                                style={
+                                    styles.imageContainer
+                                }
+                            >
                                 {item.pokemon_image ? (
                                     <Image
-                                        source={{ uri: item.pokemon_image }}
-                                        style={styles.pokemonImage}
+                                        source={{
+                                            uri: item.pokemon_image,
+                                        }}
+                                        style={
+                                            styles.pokemonImage
+                                        }
                                         contentFit="contain"
                                         transition={300}
                                     />
                                 ) : (
-                                    <View style={styles.imagePlaceholder} />
+                                    <View
+                                        style={
+                                            styles.imagePlaceholder
+                                        }
+                                    />
                                 )}
                             </View>
 
-                            {/* Name */}
-                            <View style={styles.infoContainer}>
-                                <Text style={styles.pokemonName}>
-                                    {formatName(item.pokemon_name)}
+                            {/* Nome */}
+                            <View
+                                style={
+                                    styles.infoContainer
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.pokemonName
+                                    }
+                                >
+                                    {formatName(
+                                        item.pokemon_name
+                                    )}
                                 </Text>
                             </View>
                         </Pressable>
                     )}
-                    onEndReached={handleLoadMore}
+                    onEndReached={
+                        handleLoadMore
+                    }
                     onEndReachedThreshold={0.5}
-                    ListFooterComponent={renderFooter}
+                    ListFooterComponent={
+                        renderFooter
+                    }
                 />
             )}
         </View>
@@ -211,6 +350,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#F7FAFC",
         width: "100%",
     },
+
     center: {
         flex: 1,
         alignItems: "center",
@@ -218,17 +358,20 @@ const styles = StyleSheet.create({
         backgroundColor: "#F7FAFC",
         padding: 20,
     },
+
     loadingText: {
         marginTop: 12,
         fontSize: 16,
         color: "#718096",
         fontWeight: "500",
     },
+
     noResultsText: {
         fontSize: 16,
         color: "#A0AEC0",
         fontWeight: "500",
     },
+
     header: {
         paddingTop: 60,
         paddingHorizontal: 20,
@@ -237,11 +380,15 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: "#EDF2F7",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
         shadowOpacity: 0.03,
         shadowRadius: 10,
         elevation: 2,
     },
+
     headerTitle: {
         fontSize: 32,
         fontWeight: "800",
@@ -249,6 +396,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         letterSpacing: -0.5,
     },
+
     searchBar: {
         height: 46,
         backgroundColor: "#EDF2F7",
@@ -258,13 +406,16 @@ const styles = StyleSheet.create({
         color: "#2D3748",
         fontWeight: "500",
     },
+
     listContent: {
         padding: 12,
         paddingBottom: 40,
     },
+
     row: {
         justifyContent: "space-between",
     },
+
     card: {
         backgroundColor: "#FFFFFF",
         flex: 1,
@@ -273,15 +424,21 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: "center",
         position: "relative",
+
         // Soft elegant shadow
         shadowColor: "#1A202C",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
         shadowOpacity: 0.04,
         shadowRadius: 12,
         elevation: 3,
+
         borderWidth: 1,
         borderColor: "#EDF2F7",
     },
+
     idBadge: {
         position: "absolute",
         top: 10,
@@ -291,11 +448,13 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         borderRadius: 20,
     },
+
     idText: {
         fontSize: 11,
         fontWeight: "700",
         color: "#718096",
     },
+
     imageContainer: {
         width: 90,
         height: 90,
@@ -304,26 +463,31 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
+
     pokemonImage: {
         width: "100%",
         height: "100%",
     },
+
     imagePlaceholder: {
         width: 60,
         height: 60,
         backgroundColor: "#E2E8F0",
         borderRadius: 30,
     },
+
     infoContainer: {
         alignItems: "center",
         marginTop: 4,
     },
+
     pokemonName: {
         fontSize: 15,
         fontWeight: "600",
         color: "#2D3748",
         textAlign: "center",
     },
+
     footerLoader: {
         paddingVertical: 20,
         alignItems: "center",
